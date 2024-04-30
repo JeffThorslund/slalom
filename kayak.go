@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -38,16 +40,27 @@ func main() {
 		}
 	})
 
+	var entryParser = func(record []string) Entry {
+		return Entry{
+			Id(record[0]), parseTime(record[1]),
+		}
+	}
+
 	starts := parseCsvData("data/starts.csv", entryParser)
 	ends := parseCsvData("data/ends.csv", entryParser)
 
-	fmt.Println(starts, ends, racers)
-}
+	validationError := validationErrorAggregator(
+		assertValidRacerInformation(racers),
+		assertNoDuplicateRacers(racers),
+		assertOrderedRaceStarts(getTimes(starts)),
+		assertEqualAmountOfStartsAndEnds(len(starts), len(ends)),
+	)
 
-func entryParser(record []string) Entry {
-	return Entry{
-		Id(record[0]), parseTime(record[1]),
+	if validationError != nil {
+		log.Fatal(validationError)
 	}
+
+	fmt.Println(starts, ends, racers)
 }
 
 func parseTime(timeStr string) time.Time {
@@ -84,6 +97,70 @@ func parseCsvData[D Racer | Entry](path string, parser func([]string) D) []D {
 	return results
 }
 
-func validation() {
+func validationErrorAggregator(validationErrors ...error) error {
+	for _, validationError := range validationErrors {
+		if validationError != nil {
+			return validationError
+		}
+	}
 
+	return nil
+}
+
+func assertValidRacerInformation(racers []Racer) error {
+	for i, racer := range racers {
+		if racer.id == "" {
+			return errors.New("Empty racer id." + "i:" + strconv.Itoa(i))
+		}
+
+		if racer.name == "" {
+			return errors.New("Empty racer name." + "i:" + strconv.Itoa(i))
+		}
+	}
+
+	return nil
+}
+
+func getTimes(starts []Entry) []time.Time {
+	var times []time.Time
+
+	for _, start := range starts {
+		times = append(times, start.time)
+	}
+
+	return times
+}
+
+func assertOrderedRaceStarts(startTimes []time.Time) error {
+	for i := 1; i < len(startTimes); i++ {
+		if startTimes[i].Before(startTimes[i-1]) {
+			return errors.New("Unordered start time at i:" + strconv.Itoa(i))
+		}
+	}
+	return nil
+}
+
+func assertEqualAmountOfStartsAndEnds(starts int, ends int) error {
+
+	if starts != ends {
+		return errors.New("Number of starts:" + strconv.Itoa(starts) + "Number of ends:" + strconv.Itoa(ends))
+	}
+
+	return nil
+}
+
+func assertNoDuplicateRacers(racers []Racer) error {
+	seenIds := make(map[Id]bool)
+	seenNames := make(map[string]bool)
+
+	for _, racer := range racers {
+		if seenIds[racer.id] {
+			return errors.New("Duplicate id:" + string(racer.id))
+		}
+
+		if seenNames[racer.name] {
+			return errors.New("Duplicate name:" + racer.name)
+		}
+	}
+	return nil
 }
