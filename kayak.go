@@ -6,25 +6,29 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 )
 
 type Racer struct {
-	name string
 	id   Id
+	name string
 }
 
 type Id string
 
+type EntryType int
+
+const (
+	Start EntryType = iota
+	End
+)
+
 type Entry struct {
-	id   Id
-	time time.Time
-}
-
-type Race [2]time.Time // a start and end time
-
-type Results struct {
+	racerId   Id
+	time      time.Time
+	entryType EntryType
 }
 
 /**
@@ -35,25 +39,27 @@ All starts have ends. There are no ends that do not have starts.
 func main() {
 	racers := parseCsvData("data/racers.csv", func(record []string) Racer {
 		return Racer{
-			id:   Id(record[0]),
-			name: record[1],
+			Id(record[0]), record[1],
 		}
 	})
 
-	var entryParser = func(record []string) Entry {
+	starts := parseCsvData("data/starts.csv", func(record []string) Entry {
 		return Entry{
-			Id(record[0]), parseTime(record[1]),
+			Id(record[0]), parseTime(record[1]), Start,
 		}
-	}
+	})
 
-	starts := parseCsvData("data/starts.csv", entryParser)
-	ends := parseCsvData("data/ends.csv", entryParser)
+	ends := parseCsvData("data/ends.csv", func(record []string) Entry {
+		return Entry{
+			Id(record[0]), parseTime(record[1]), End,
+		}
+	})
 
 	validationError := validationErrorAggregator(
 		assertValidRacerInformation(racers),
 		assertNoDuplicateRacers(racers),
 		assertOrderedRaceStarts(getTimes(starts)),
-		assertEqualAmountOfStartsAndEnds(len(starts), len(ends)),
+		assertThatAllRacesEnd(starts, ends),
 	)
 
 	if validationError != nil {
@@ -140,15 +146,6 @@ func assertOrderedRaceStarts(startTimes []time.Time) error {
 	return nil
 }
 
-func assertEqualAmountOfStartsAndEnds(starts int, ends int) error {
-
-	if starts != ends {
-		return errors.New("Number of starts:" + strconv.Itoa(starts) + "Number of ends:" + strconv.Itoa(ends))
-	}
-
-	return nil
-}
-
 func assertNoDuplicateRacers(racers []Racer) error {
 	seenIds := make(map[Id]bool)
 	seenNames := make(map[string]bool)
@@ -164,3 +161,55 @@ func assertNoDuplicateRacers(racers []Racer) error {
 	}
 	return nil
 }
+
+func assertThatAllRacesEnd(starts []Entry, ends []Entry) error {
+
+	allRaces := append(starts, ends...)
+
+	sort.Slice(allRaces, func(i, j int) bool {
+		return allRaces[i].time.Before(allRaces[j].time)
+	})
+
+	raceMap := make(map[Id][]Entry)
+
+	for _, race := range allRaces {
+		raceMap[race.racerId] = append(raceMap[race.racerId], race)
+	}
+
+	for _, entries := range raceMap {
+
+		// track if a user is racing
+		isRacing := false
+
+		for _, entry := range entries {
+			if !isRacing && (entry.entryType == Start) { // Racer starts a race
+				isRacing = true
+			} else if isRacing && (entry.entryType == End) { // Racer ends a race
+				isRacing = false
+			} else if !isRacing && (entry.entryType == End) { // Racer tries to end but is not currently racing
+				return errors.New("trying to end a race but is not racing")
+			} else if isRacing && (entry.entryType == Start) {
+				return errors.New("trying to start a race but is currently racing")
+			} else {
+				return errors.New("unknown error occured")
+			}
+		}
+
+		if isRacing {
+			return errors.New("finished with no end to last race")
+		}
+	}
+
+	return nil
+}
+
+/*
+	Prize Ideas
+		Closest Finishes
+		Biggest Comeback
+		Most Consistent
+		Closest to speed of a racoon
+		Total time of all races closest to the speed of another world event, like a famous battle.
+
+
+*/
