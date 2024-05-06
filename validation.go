@@ -77,7 +77,7 @@ func assertNoDuplicateRacers(racers []Racer) error {
 
 func assertThatAllRacesEnd(starts []Entry, ends []Entry) error {
 
-	raceSummaryPerRacer := createRaceSummaryPerRacer(starts, ends)
+	raceSummaryPerRacer := createSortedEntriesPerRacer(starts, ends)
 
 	for _, entries := range raceSummaryPerRacer {
 
