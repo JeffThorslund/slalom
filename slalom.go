@@ -1,16 +1,18 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"log"
+	"os"
 	"sort"
 	"time"
 )
 
 // A person competing the race
 type Racer struct {
-	id   RacerId
-	name string
+	id   RacerId // unique id given to each racer
+	name string  // given name of each racer
 }
 
 type RacerId string
@@ -36,15 +38,15 @@ Assumptions: The data is in order of when it happened (validate for this).
 func main() {
 
 	// parse the data from csv into arrays
-	starts, ends, racers := parseCsvData("data/starts.csv", func(record []string) Entry {
+	starts, ends, racers := parseCsvData("testdata/starts.csv", func(record []string) Entry {
 		return Entry{
 			RacerId(record[0]), parseTime(record[1]), Start,
 		}
-	}), parseCsvData("data/ends.csv", func(record []string) Entry {
+	}), parseCsvData("testdata/ends.csv", func(record []string) Entry {
 		return Entry{
 			RacerId(record[0]), parseTime(record[1]), End,
 		}
-	}), parseCsvData("data/racers.csv", func(record []string) Racer {
+	}), parseCsvData("testdata/racers.csv", func(record []string) Racer {
 		return Racer{
 			RacerId(record[0]), record[1],
 		}
@@ -73,7 +75,31 @@ func main() {
 		return masterRaceList[i].getRaceTime() < masterRaceList[j].getRaceTime()
 	})
 
+	// Filter this by catagory when catagories are added to racers.
+
 	// 3. the "fun awards"
+	// Deal with this last.
+
+	// finally as a last step, we create a csv file(s) of the results
+	// Per racer info sheets, list of all races, list of catagorized races
+
+	w := csv.NewWriter(os.Stdout)
+
+	for _, race := range masterRaceList {
+
+		record := []string{string(race[0].racerId)}
+
+		if err := w.Write(record); err != nil {
+			log.Fatalln("error writing record to csv:", err)
+		}
+	}
+
+	// Write any buffered data to the underlying writer (standard output).
+	w.Flush()
+
+	if err := w.Error(); err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(sortedRacesPerRacer, masterRaceList)
 }
