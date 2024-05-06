@@ -30,15 +30,9 @@ type Entry struct {
 
 /**
 Assumptions: The data is in order of when it happened (validate for this).
-
 */
 
 func main() {
-	racers := parseCsvData("data/racers.csv", func(record []string) Racer {
-		return Racer{
-			Id(record[0]), record[1],
-		}
-	})
 
 	starts := parseCsvData("data/starts.csv", func(record []string) Entry {
 		return Entry{
@@ -49,6 +43,12 @@ func main() {
 	ends := parseCsvData("data/ends.csv", func(record []string) Entry {
 		return Entry{
 			Id(record[0]), parseTime(record[1]), End,
+		}
+	})
+
+	racers := parseCsvData("data/racers.csv", func(record []string) Racer {
+		return Racer{
+			Id(record[0]), record[1],
 		}
 	})
 
