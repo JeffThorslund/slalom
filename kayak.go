@@ -9,11 +9,11 @@ import (
 )
 
 type Racer struct {
-	id   Id
+	id   RacerId
 	name string
 }
 
-type Id string
+type RacerId string
 
 type EntryType int
 
@@ -23,7 +23,7 @@ const (
 )
 
 type Entry struct {
-	racerId   Id
+	racerId   RacerId
 	time      time.Time
 	entryType EntryType
 }
@@ -33,22 +33,17 @@ Assumptions: The data is in order of when it happened (validate for this).
 */
 
 func main() {
-
-	starts := parseCsvData("data/starts.csv", func(record []string) Entry {
+	starts, ends, racers := parseCsvData("data/starts.csv", func(record []string) Entry {
 		return Entry{
-			Id(record[0]), parseTime(record[1]), Start,
+			RacerId(record[0]), parseTime(record[1]), Start,
 		}
-	})
-
-	ends := parseCsvData("data/ends.csv", func(record []string) Entry {
+	}), parseCsvData("data/ends.csv", func(record []string) Entry {
 		return Entry{
-			Id(record[0]), parseTime(record[1]), End,
+			RacerId(record[0]), parseTime(record[1]), End,
 		}
-	})
-
-	racers := parseCsvData("data/racers.csv", func(record []string) Racer {
+	}), parseCsvData("data/racers.csv", func(record []string) Racer {
 		return Racer{
-			Id(record[0]), record[1],
+			RacerId(record[0]), record[1],
 		}
 	})
 
