@@ -95,7 +95,7 @@ func main() {
 
 	for _, race := range masterRaceList {
 
-		record := []string{string(race[0].racerId), race[0].time.String(), race[1].time.String(), race.getRaceTime().String()}
+		record := race.printRace()
 
 		if err := w.Write(record); err != nil {
 			log.Fatalln("error writing record to csv:", err)

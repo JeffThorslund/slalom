@@ -24,15 +24,23 @@ func createSortedEntriesPerRacer(starts []Entry, ends []Entry) SortedEntriesPerR
 }
 
 // A 2 element slice with a start and end entry, representing a completed race
-type Race []Entry
+type Race struct {
+	racerId RacerId
+	start   time.Time
+	end     time.Time
+}
 
 func (r *Race) getRaceTime() time.Duration {
-	if len(*r) < 2 {
-		return 0
+	return (*r).end.Sub((*r).start)
+}
+
+func (r *Race) printRace() []string {
+	return []string{
+		string((*r).racerId),
+		(*r).start.String(),
+		(*r).end.String(),
+		(*r).getRaceTime().String(),
 	}
-	start := (*r)[0].time
-	end := (*r)[1].time
-	return end.Sub(start)
 }
 
 type SortedRacesPerRacer map[RacerId][]Race
@@ -43,8 +51,11 @@ func (se SortedEntriesPerRacer) ToRaces() SortedRacesPerRacer {
 	for racerId, entries := range se {
 		var races []Race
 		for i := 0; i < len(entries); i += 2 {
-			race := entries[i : i+2]
-			races = append(races, race)
+			races = append(races, Race{
+				racerId: entries[i].racerId,
+				start:   entries[i].time,
+				end:     entries[i+1].time,
+			})
 		}
 
 		sr[racerId] = races
