@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// A person competing the race
 type Racer struct {
 	id   RacerId
 	name string
@@ -21,6 +22,7 @@ const (
 	End
 )
 
+// A record of a start or finish, as written by start or end timer
 type Entry struct {
 	racerId   RacerId
 	time      time.Time

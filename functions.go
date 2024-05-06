@@ -23,6 +23,7 @@ func createSortedEntriesPerRacer(starts []Entry, ends []Entry) SortedEntriesPerR
 	return raceMap
 }
 
+// A 2 element slice with a start and end entry, representing a completed race
 type Race []Entry
 
 func (r *Race) getRaceTime() time.Duration {
