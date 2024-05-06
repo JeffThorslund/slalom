@@ -83,11 +83,19 @@ func main() {
 	// finally as a last step, we create a csv file(s) of the results
 	// Per racer info sheets, list of all races, list of catagorized races
 
-	w := csv.NewWriter(os.Stdout)
+	file, err := os.Create("demo.csv")
+
+	if err != nil {
+		log.Fatal("Error creating file")
+	}
+
+	w := csv.NewWriter(file)
+
+	w.Write([]string{"racer id", "start time", "end time", "total time"})
 
 	for _, race := range masterRaceList {
 
-		record := []string{string(race[0].racerId)}
+		record := []string{string(race[0].racerId), race[0].time.String(), race[1].time.String(), race.getRaceTime().String()}
 
 		if err := w.Write(record); err != nil {
 			log.Fatalln("error writing record to csv:", err)
