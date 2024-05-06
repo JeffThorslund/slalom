@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -53,7 +54,25 @@ func main() {
 		log.Fatal(validationError)
 	}
 
-	fmt.Println(starts, ends, racers)
+	// now we know (hopefully) the results are valid, we want to see the results in different views (think selectors)
+	// we can continue without validation
+
+	// 1. a "per person" breakdown of their races, sorted. This is the most natural way of constructing the structure so we start with that.
+	sortedRacesPerRacer := createSortedEntriesPerRacer(starts, ends).ToRaces()
+
+	// 2. a master list of sorted results, that can be filtered by catagory.
+	var masterRaceList []Race
+	for _, races := range sortedRacesPerRacer {
+		masterRaceList = append(masterRaceList, races...)
+	}
+
+	sort.Slice(masterRaceList, func(i, j int) bool {
+		return masterRaceList[i].getRaceTime() < masterRaceList[j].getRaceTime()
+	})
+
+	// 3. the "fun awards"
+
+	fmt.Println(sortedRacesPerRacer, masterRaceList)
 }
 
 func parseTime(timeStr string) time.Time {
