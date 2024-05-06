@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -61,7 +60,7 @@ func assertOrderedRaceStarts(startTimes []time.Time) error {
 }
 
 func assertNoDuplicateRacers(racers []Racer) error {
-	seenIds := make(map[Id]bool)
+	seenIds := make(map[RacerId]bool)
 	seenNames := make(map[string]bool)
 
 	for _, racer := range racers {
@@ -78,19 +77,9 @@ func assertNoDuplicateRacers(racers []Racer) error {
 
 func assertThatAllRacesEnd(starts []Entry, ends []Entry) error {
 
-	allRaces := append(starts, ends...)
+	raceSummaryPerRacer := createRaceSummaryPerRacer(starts, ends)
 
-	sort.Slice(allRaces, func(i, j int) bool {
-		return allRaces[i].time.Before(allRaces[j].time)
-	})
-
-	raceMap := make(map[Id][]Entry)
-
-	for _, race := range allRaces {
-		raceMap[race.racerId] = append(raceMap[race.racerId], race)
-	}
-
-	for _, entries := range raceMap {
+	for _, entries := range raceSummaryPerRacer {
 
 		// track if a user is racing
 		isRacing := false
