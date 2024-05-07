@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 )
 
 func getValidationError(starts []Entry, ends []Entry, racers []Racer) error {
 	return validationErrorAggregator(
-		assertValidRacerInformation(racers),
+		assertManyValidRacersInformation(racers),
 		assertNoDuplicateRacers(racers),
 		assertOrderedRaceStarts(getTimes(starts)),
 		assertThatAllRacesEnd(starts, ends),
@@ -26,15 +27,27 @@ func validationErrorAggregator(validationErrors ...error) error {
 	return nil
 }
 
-func assertValidRacerInformation(racers []Racer) error {
+func assertManyValidRacersInformation(racers []Racer) error {
 	for i, racer := range racers {
-		if racer.id == "" {
-			return errors.New("Empty racer id." + "i:" + strconv.Itoa(i))
+		err := assertSingleValidRacerInformation(racer)
+		if err != nil {
+			return fmt.Errorf("index: %d, %w", i, err)
 		}
+	}
 
-		if racer.name == "" {
-			return errors.New("Empty racer name." + "i:" + strconv.Itoa(i))
-		}
+	return nil
+}
+
+var ErrEmptyRacerId = errors.New("empty racer id")
+var ErrEmptyRacerName = errors.New("empty racer name")
+
+func assertSingleValidRacerInformation(racer Racer) error {
+	if racer.id == "" {
+		return ErrEmptyRacerId
+	}
+
+	if racer.name == "" {
+		return ErrEmptyRacerName
 	}
 
 	return nil
