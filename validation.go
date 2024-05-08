@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 )
 
@@ -63,10 +62,12 @@ func getTimes(starts []Entry) []time.Time {
 	return times
 }
 
+var ErrUnorderedStarts = errors.New("unordered start times")
+
 func assertOrderedRaceStarts(startTimes []time.Time) error {
 	for i := 1; i < len(startTimes); i++ {
 		if startTimes[i].Before(startTimes[i-1]) {
-			return errors.New("Unordered start time at i:" + strconv.Itoa(i))
+			return ErrUnorderedStarts
 		}
 	}
 	return nil
