@@ -11,9 +11,10 @@ import (
 
 // A person competing the race
 type Racer struct {
-	id     RacerId // unique id given to each racer
-	name   string  // given name of each racer
-	gender Gender
+	id       RacerId  // unique id given to each racer
+	name     string   // given name of each racer
+	gender   Gender   // gender of each racer
+	category Category // skill level catagory of each racer
 }
 
 type RacerId string
@@ -44,6 +45,38 @@ func parseGender(s string) Gender {
 	}
 
 	return gender
+}
+
+type Category int
+
+const (
+	_ Category = iota
+	Beginner
+	Intermediate
+	Advanced
+)
+
+func parseCategory(s string) Category {
+
+	var category Category
+	var err error
+
+	switch s {
+	case "b":
+		category, err = Beginner, nil
+	case "i":
+		category, err = Intermediate, nil
+	case "a":
+		category, err = Advanced, nil
+	default:
+		category, err = 0, fmt.Errorf("invalid catergory: %s", s)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return category
 }
 
 type EntryType int
@@ -89,13 +122,11 @@ func main() {
 			entryType: End,
 		}
 	}), parseCsvData("testdata/racers.csv", func(record []string) Racer {
-
-		gender := parseGender(record[2])
-
 		return Racer{
-			id:     RacerId(record[0]),
-			name:   record[1],
-			gender: gender,
+			id:       RacerId(record[0]),
+			name:     record[1],
+			gender:   parseGender(record[2]),
+			category: parseCategory(record[3]),
 		}
 	})
 
