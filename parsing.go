@@ -5,16 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
-
-func parseTime(timeStr string) time.Time {
-	t, err := time.Parse(time.RFC3339, timeStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return t
-}
 
 func parseCsvData[D Racer | Entry](path string, parser func([]string) D) []D {
 	file, err := os.Open(path)

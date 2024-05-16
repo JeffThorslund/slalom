@@ -11,16 +11,46 @@ import (
 
 // A person competing the race
 type Racer struct {
-	id   RacerId // unique id given to each racer
-	name string  // given name of each racer
+	id     RacerId // unique id given to each racer
+	name   string  // given name of each racer
+	gender Gender
 }
 
 type RacerId string
 
+type Gender int
+
+const (
+	_ Gender = iota
+	Male
+	Female
+)
+
+func parseGender(s string) Gender {
+	var gender Gender
+	var err error
+
+	switch s {
+	case "m":
+		gender, err = Male, nil
+	case "f":
+		gender, err = Female, nil
+	default:
+		gender, err = 0, fmt.Errorf("invalid gender: %s", s)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return gender
+}
+
 type EntryType int
 
 const (
-	Start EntryType = iota
+	_ EntryType = iota
+	Start
 	End
 )
 
@@ -29,6 +59,14 @@ type Entry struct {
 	racerId   RacerId
 	time      time.Time
 	entryType EntryType
+}
+
+func parseTime(timeStr string) time.Time {
+	t, err := time.Parse(time.RFC3339, timeStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return t
 }
 
 /**
@@ -40,15 +78,24 @@ func main() {
 	// parse the data from csv into arrays
 	starts, ends, racers := parseCsvData("testdata/starts.csv", func(record []string) Entry {
 		return Entry{
-			RacerId(record[0]), parseTime(record[1]), Start,
+			racerId:   RacerId(record[0]),
+			time:      parseTime(record[1]),
+			entryType: Start,
 		}
 	}), parseCsvData("testdata/ends.csv", func(record []string) Entry {
 		return Entry{
-			RacerId(record[0]), parseTime(record[1]), End,
+			racerId:   RacerId(record[0]),
+			time:      parseTime(record[1]),
+			entryType: End,
 		}
 	}), parseCsvData("testdata/racers.csv", func(record []string) Racer {
+
+		gender := parseGender(record[2])
+
 		return Racer{
-			RacerId(record[0]), record[1],
+			id:     RacerId(record[0]),
+			name:   record[1],
+			gender: gender,
 		}
 	})
 
