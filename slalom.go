@@ -16,7 +16,7 @@ func main() {
 	// parse the data from csv into arrays
 	starts := parseCsvData("testdata/starts.csv", createStart)
 	ends := parseCsvData("testdata/ends.csv", createEnd)
-	racers := parseCsvData("testdata/racers.csv", createRacer)
+	racers := parseCsvData("testdata/racers.csv", newRacer)
 
 	// validate the data without mutation, throw errors for humans to fix
 	validationError := getValidationError(starts, ends, racers)
@@ -42,21 +42,22 @@ func main() {
 		return allRaces[i].getRaceTime() < allRaces[j].getRaceTime()
 	})
 
-	racersMap := make(map[racerId]Racer)
+	racersMap := make(map[racerId]racer)
 
 	for _, racer := range racers {
 		racersMap[racer.id] = racer
 	}
 
 	type CategoryGenderKey struct {
-		category Category
-		gender   Gender
+		category category
+		gender   gender
 	}
 
 	categorizedRaces := make(map[CategoryGenderKey][]Race)
 
 	for _, race := range allRaces {
 		racer := racersMap[race.racerId]
+		log.Println(racer.String())
 		key := CategoryGenderKey{racer.category, racer.gender}
 		categorizedRaces[key] = append(categorizedRaces[key], race)
 	}

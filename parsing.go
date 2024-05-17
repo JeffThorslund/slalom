@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func parseCsvData[D Racer | entry](path string, parser func([]string) D) []D {
+func parseCsvData[D racer | entry](path string, parser func([]string) D) []D {
 	file, err := os.Open(path)
 
 	if err != nil {

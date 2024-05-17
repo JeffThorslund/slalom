@@ -6,25 +6,25 @@ import (
 )
 
 // A person competing the race
-type Racer struct {
+type racer struct {
 	id       racerId  // unique id given to each racer
 	name     string   // given name of each racer
-	gender   Gender   // gender of each racer
-	category Category // skill level catagory of each racer
+	gender   gender   // gender of each racer
+	category category // skill level catagory of each racer
 }
 
 type racerId string
 
-type Gender int
+type gender int
 
 const (
-	_ Gender = iota
+	_ gender = iota
 	Male
 	Female
 )
 
-func createRacer(record []string) Racer {
-	return Racer{
+func newRacer(record []string) racer {
+	return racer{
 		id:       racerId(record[0]),
 		name:     record[1],
 		gender:   parseGender(record[2]),
@@ -32,8 +32,8 @@ func createRacer(record []string) Racer {
 	}
 }
 
-func parseGender(s string) Gender {
-	var gender Gender
+func parseGender(s string) gender {
+	var gender gender
 	var err error
 
 	switch s {
@@ -52,17 +52,17 @@ func parseGender(s string) Gender {
 	return gender
 }
 
-type Category int
+type category int
 
 const (
-	_ Category = iota
+	_ category = iota
 	Beginner
 	Intermediate
 	Advanced
 )
 
-func parseCategory(s string) Category {
-	var category Category
+func parseCategory(s string) category {
+	var category category
 	var err error
 
 	switch s {
@@ -81,4 +81,8 @@ func parseCategory(s string) Category {
 	}
 
 	return category
+}
+
+func (r *racer) String() string {
+	return fmt.Sprintf("Racer Name: %s, Category: %v", r.name, r.category)
 }

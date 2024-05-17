@@ -7,7 +7,7 @@ import (
 )
 
 func TestAssertManyValidRacersInformation(t *testing.T) {
-	racers := []Racer{
+	racers := []racer{
 		{
 			id:   "id1",
 			name: "Jeff",
@@ -31,25 +31,25 @@ func TestAssertManyValidRacersInformation(t *testing.T) {
 
 func TestAssertSingleValidRacerInformation(t *testing.T) {
 	var tests = []struct {
-		racer Racer
+		racer racer
 		want  error
 	}{
 		{
-			Racer{
+			racer{
 				id:   "id",
 				name: "Jeff",
 			},
 			nil,
 		},
 		{
-			Racer{
+			racer{
 				id:   "id",
 				name: "",
 			},
 			ErrEmptyRacerName,
 		},
 		{
-			Racer{
+			racer{
 				id:   "",
 				name: "Jeff",
 			},
