@@ -31,17 +31,47 @@ func main() {
 	// 1. a "per person" breakdown of their races, sorted. This is the most natural way of constructing the structure so we start with that.
 	sortedRacesPerRacer := createSortedEntriesPerRacer(starts, ends).ToRaces()
 
-	// 2. a master list of sorted results, that can be filtered by catagory.
-	var masterRaceList []Race
+	// 2. a master list of sorted races, that can be filtered by catagory.
+	var allRaces []Race
+
 	for _, races := range sortedRacesPerRacer {
-		masterRaceList = append(masterRaceList, races...)
+		allRaces = append(allRaces, races...)
 	}
 
-	sort.Slice(masterRaceList, func(i, j int) bool {
-		return masterRaceList[i].getRaceTime() < masterRaceList[j].getRaceTime()
+	sort.Slice(allRaces, func(i, j int) bool {
+		return allRaces[i].getRaceTime() < allRaces[j].getRaceTime()
 	})
 
+	racersMap := make(map[racerId]Racer)
+
+	for _, racer := range racers {
+		racersMap[racer.id] = racer
+	}
+
+	type CategoryGenderKey struct {
+		category Category
+		gender   Gender
+	}
+
+	categorizedRaces := make(map[CategoryGenderKey][]Race)
+
+	for _, race := range allRaces {
+		racer := racersMap[race.racerId]
+		key := CategoryGenderKey{racer.category, racer.gender}
+		categorizedRaces[key] = append(categorizedRaces[key], race)
+	}
+
+	intermediateMen := categorizedRaces[CategoryGenderKey{Intermediate, Male}]
+	intermediateWomen := categorizedRaces[CategoryGenderKey{Intermediate, Female}]
+	advancedMen := categorizedRaces[CategoryGenderKey{Advanced, Male}]
+	advancedWomen := categorizedRaces[CategoryGenderKey{Advanced, Female}]
+
 	// Filter this by catagory when catagories are added to racers.
+
+	fmt.Printf("Intermediate Men: %v\n", intermediateMen)
+	fmt.Printf("Intermediate Women: %v\n", intermediateWomen)
+	fmt.Printf("Advanced Men: %v\n", advancedMen)
+	fmt.Printf("Advanced Women: %v\n", advancedWomen)
 
 	// 3. the "fun awards"
 	/*
@@ -71,7 +101,7 @@ func main() {
 
 	w.Write([]string{"racer id", "start time", "end time", "total time"})
 
-	for _, race := range masterRaceList {
+	for _, race := range allRaces {
 
 		record := race.printRace()
 
@@ -87,5 +117,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(sortedRacesPerRacer, masterRaceList)
+	fmt.Println(sortedRacesPerRacer, allRaces)
 }
