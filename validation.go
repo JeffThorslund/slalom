@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func getValidationError(starts []Entry, ends []Entry, racers []Racer) error {
+func getValidationError(starts []entry, ends []entry, racers []Racer) error {
 	return validationErrorAggregator(
 		assertManyValidRacersInformation(racers),
 		assertNoDuplicateRacers(racers),
@@ -53,7 +53,7 @@ func assertSingleValidRacerInformation(racer Racer) error {
 	return nil
 }
 
-func getTimes(starts []Entry) []time.Time {
+func getTimes(starts []entry) []time.Time {
 	var times []time.Time
 
 	for _, start := range starts {
@@ -73,7 +73,7 @@ func assertOrderedRaceStarts(startTimes []time.Time) error {
 }
 
 func assertNoDuplicateRacers(racers []Racer) error {
-	seenIds := make(map[RacerId]bool)
+	seenIds := make(map[racerId]bool)
 	seenNames := make(map[string]bool)
 
 	for _, racer := range racers {
@@ -88,7 +88,7 @@ func assertNoDuplicateRacers(racers []Racer) error {
 	return nil
 }
 
-func assertThatAllRacesEnd(starts []Entry, ends []Entry) error {
+func assertThatAllRacesEnd(starts []entry, ends []entry) error {
 
 	raceSummaryPerRacer := createSortedEntriesPerRacer(starts, ends)
 

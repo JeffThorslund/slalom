@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-type SortedEntriesPerRacer map[RacerId][]Entry
+type SortedEntriesPerRacer map[racerId][]entry
 
-func createSortedEntriesPerRacer(starts []Entry, ends []Entry) SortedEntriesPerRacer {
+func createSortedEntriesPerRacer(starts []entry, ends []entry) SortedEntriesPerRacer {
 	allRaces := append(starts, ends...)
 
 	sort.Slice(allRaces, func(i, j int) bool {
@@ -25,7 +25,7 @@ func createSortedEntriesPerRacer(starts []Entry, ends []Entry) SortedEntriesPerR
 
 // A 2 element slice with a start and end entry, representing a completed race
 type Race struct {
-	racerId RacerId
+	racerId racerId
 	start   time.Time
 	end     time.Time
 }
@@ -43,7 +43,7 @@ func (r *Race) printRace() []string {
 	}
 }
 
-type SortedRacesPerRacer map[RacerId][]Race
+type SortedRacesPerRacer map[racerId][]Race
 
 func (se SortedEntriesPerRacer) ToRaces() SortedRacesPerRacer {
 	sr := make(SortedRacesPerRacer) // Initialize the map
