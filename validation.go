@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// should be doing validation WHILE running the program...
+
 func getValidationError(starts []entry, ends []entry, racers []racer) error {
 	return validationErrorAggregator(
 		assertManyValidRacersInformation(racers),

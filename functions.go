@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"log"
 	"sort"
 )
 
@@ -45,13 +44,27 @@ func (se SortedEntriesPerRacer) ToRaces() SortedRacesPerRacer {
 	return sr
 }
 
-func (sr SortedRacesPerRacer) write(title string, w *csv.Writer) {
-
+func (sr SortedRacesPerRacer) write(title string, w *csv.Writer) error {
 	if err := w.Write([]string{title}); err != nil {
-		log.Fatalln("error writing title", err)
+		return err
 	}
 
 	for racerId, races := range sr {
-		races.write(string(racerId), w)
+		if err := races.write(string(racerId), w); err != nil {
+			return err
+		}
 	}
+
+	return nil
+}
+
+func (sr SortedRacesPerRacer) flatten() (allRaces Races) {
+	for _, races := range sr {
+		allRaces = append(allRaces, races...)
+	}
+
+	sort.Slice(allRaces, func(i, j int) bool {
+		return allRaces[i].getRaceTime() < allRaces[j].getRaceTime()
+	})
+	return
 }

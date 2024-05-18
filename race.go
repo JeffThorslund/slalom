@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"log"
 	"math"
 	"time"
 )
@@ -52,29 +51,31 @@ func (r *Race) getHeaders() []string {
 
 type Races []Race
 
-func (rs Races) write(title string, w *csv.Writer) {
+func (rs Races) write(title string, w *csv.Writer) error {
 
 	if len(rs) == 0 {
-		return
+		return nil
 	}
 
 	if err := w.Write([]string{title}); err != nil {
-		log.Fatalln("error writing title", err)
+		return err
 	}
 
 	headers := rs[0].getHeaders()
 	if err := w.Write(headers); err != nil {
-		log.Fatalln("error writing headers:", err)
+		return err
 	}
 
 	if err := w.WriteAll(rs.formatRaces()); err != nil {
-		log.Fatalln("error writing races to csv:", err)
+		return err
 	}
 
 	// Write an empty record to add a newline
 	if err := w.Write([]string{}); err != nil {
-		log.Fatalln("error writing newline to csv:", err)
+		return err
 	}
+
+	return nil
 }
 
 func (rs Races) formatRaces() (formattedRaces [][]string) {
