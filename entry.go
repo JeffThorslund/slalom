@@ -20,7 +20,7 @@ type entry struct {
 	entryType entryType
 }
 
-func createStart(record []string) entry {
+func newStart(record []string) entry {
 	return entry{
 		racerId:   racerId(record[0]),
 		time:      parseTime(record[1]),
@@ -28,7 +28,7 @@ func createStart(record []string) entry {
 	}
 }
 
-func createEnd(record []string) entry {
+func newEnd(record []string) entry {
 	return entry{
 		racerId:   racerId(record[0]),
 		time:      parseTime(record[1]),
