@@ -39,6 +39,8 @@ func main() {
 	// 1. a "per person" breakdown of their races, sorted. This is the most natural way of constructing the structure so we start with that.
 	sortedRacesPerRacer := createSortedEntriesPerRacer(starts, ends).ToRaces()
 
+	sortedRacesPerRacer.write("sorted racers", w)
+
 	// 2. a master list of sorted races, that can be filtered by catagory.
 	var allRaces Races
 
@@ -81,6 +83,7 @@ func main() {
 
 	c := closetToPenguinSpeed(allRaces)
 	log.Println("race", c.formatRace())
+
 	/*
 		- closest to running pace of a penguin (1.6 miles an hour).
 		- most improved
