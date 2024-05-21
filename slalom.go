@@ -36,7 +36,7 @@ func main() {
 	// we can continue without validation
 
 	// 1. a "per person" breakdown of their races, sorted. This is the most natural way of constructing the structure so we start with that.
-	sortedRacesPerRacer := createSortedEntriesPerRacer(starts, ends).ToRaces()
+	sortedRacesPerRacer := createRacesPerRacer(starts, ends)
 	if err := sortedRacesPerRacer.write("sorted racers", w); err != nil {
 		log.Fatalln(err)
 	}

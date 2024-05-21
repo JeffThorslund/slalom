@@ -5,6 +5,32 @@ import (
 	"sort"
 )
 
+type SortedRacesPerRacer map[racerId]Races
+
+func createRacesPerRacer(starts []entry, ends []entry) SortedRacesPerRacer {
+
+	se := createSortedEntriesPerRacer(starts, ends)
+
+	sr := make(SortedRacesPerRacer)
+
+	for racerId, entries := range se {
+		var races Races
+		for i := 0; i < len(entries); i += 2 {
+			races = append(races, Race{
+				racerId: entries[i].racerId,
+				start:   entries[i].time,
+				end:     entries[i+1].time,
+			})
+		}
+
+		sr[racerId] = races
+	}
+
+	return sr
+}
+
+// This function separates concerns in a "per racer" context
+
 type SortedEntriesPerRacer map[racerId][]entry
 
 func createSortedEntriesPerRacer(starts []entry, ends []entry) SortedEntriesPerRacer {
@@ -21,27 +47,6 @@ func createSortedEntriesPerRacer(starts []entry, ends []entry) SortedEntriesPerR
 	}
 
 	return raceMap
-}
-
-type SortedRacesPerRacer map[racerId]Races
-
-func (se SortedEntriesPerRacer) ToRaces() SortedRacesPerRacer {
-	sr := make(SortedRacesPerRacer) // Initialize the map
-
-	for racerId, entries := range se {
-		var races Races
-		for i := 0; i < len(entries); i += 2 {
-			races = append(races, Race{
-				racerId: entries[i].racerId,
-				start:   entries[i].time,
-				end:     entries[i+1].time,
-			})
-		}
-
-		sr[racerId] = races
-	}
-
-	return sr
 }
 
 func (sr SortedRacesPerRacer) write(title string, w *csv.Writer) error {
