@@ -11,7 +11,7 @@ import (
 	"github.com/JeffThorslund/slalom-results/racer"
 )
 
-func ProcessRawData() ([]entry.Entry, []entry.Entry, []racer.Racer) {
+func ProcessRawData() ([]entry.Entry, []entry.Entry, racer.Racers) {
 	starts := parseCsvData("testdata/starts.csv", parseStart)
 	ends := parseCsvData("testdata/ends.csv", parseEnd)
 	racers := parseCsvData("testdata/racers.csv", parseRacer)
@@ -70,52 +70,49 @@ func parseTime(timeStr string) time.Time {
 }
 
 func parseRacer(record []string) racer.Racer {
+
+	gender, err := parseGender(record[2])
+
+	if err != nil {
+		log.Fatal(err, record)
+	}
+
+	category, err := parseCategory(record[3])
+
+	if err != nil {
+		log.Fatal(err, record)
+	}
+
 	return racer.NewRacer(
 		racer.RacerId(record[0]),
 		record[1],
-		parseGender(record[2]),
-		parseCategory(record[3]),
+		gender,
+		category,
 	)
 }
 
-func parseCategory(s string) racer.Category {
-	var category racer.Category
-	var err error
+func parseCategory(s string) (racer.Category, error) {
 
 	switch s {
 	case "b":
-		category, err = racer.Beginner, nil
+		return racer.Beginner, nil
 	case "i":
-		category, err = racer.Intermediate, nil
+		return racer.Intermediate, nil
 	case "a":
-		category, err = racer.Advanced, nil
+		return racer.Advanced, nil
 	default:
-		category, err = 0, fmt.Errorf("invalid catergory: %s", s)
+		return 0, fmt.Errorf("invalid catergory: %s", s)
 	}
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return category
 }
 
-func parseGender(s string) racer.Gender {
-	var gender racer.Gender
-	var err error
-
+func parseGender(s string) (racer.Gender, error) {
 	switch s {
 	case "m":
-		gender, err = racer.Male, nil
+		return racer.Male, nil
 	case "f":
-		gender, err = racer.Female, nil
+		return racer.Female, nil
 	default:
-		gender, err = 0, fmt.Errorf("invalid gender: %s", s)
+		return 0, fmt.Errorf("invalid gender: %s", s)
 	}
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return gender
 }
