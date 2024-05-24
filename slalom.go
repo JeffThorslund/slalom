@@ -4,6 +4,9 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+
+	"github.com/JeffThorslund/slalom-results/parsing"
+	"github.com/JeffThorslund/slalom-results/race"
 )
 
 /**
@@ -13,9 +16,8 @@ Assumptions: The data is in order of when it happened (validate for this).
 func main() {
 
 	// parse the data from csv into arrays
-	starts := parseCsvData("testdata/starts.csv", newStart)
-	ends := parseCsvData("testdata/ends.csv", newEnd)
-	racers := parseCsvData("testdata/racers.csv", newRacer)
+
+	starts, ends, racers := parsing.ProcessRawData()
 
 	file, err := os.Create("demo.csv")
 
@@ -29,45 +31,24 @@ func main() {
 	// we can continue without validation
 
 	// 1. a "per person" breakdown of their races, sorted. This is the most natural way of constructing the structure so we start with that.
-	sortedRacesPerRacer := createRacesPerRacer(starts, ends)
-	if err := sortedRacesPerRacer.write("sorted racers", w); err != nil {
+	sortedRacesPerRacer := race.CreateRacesPerRacer(starts, ends, racers)
+	if err := sortedRacesPerRacer.Write("sorted racers", w); err != nil {
 		log.Fatalln(err)
 	}
 
-	allRaces := sortedRacesPerRacer.flatten()
-	if err := allRaces.write("All Races", w); err != nil {
+	allRaces := sortedRacesPerRacer.Flatten()
+	if err := allRaces.Write("All Races", w); err != nil {
 		log.Fatalln("Error writing all races", err)
 	}
 
-	racersMap := make(map[racerId]racer)
-
-	for _, racer := range racers {
-		racersMap[racer.id] = racer
+	categorizedRaces := allRaces.CreateCatagorizedRaces()
+	for _, races := range categorizedRaces {
+		races.Write("", w)
 	}
-
-	type CategoryGenderKey struct {
-		category category
-		gender   gender
-	}
-
-	categorizedRaces := make(map[CategoryGenderKey]Races)
-
-	for _, race := range allRaces {
-		racer := racersMap[race.racerId]
-		log.Println(racer.String())
-		key := CategoryGenderKey{racer.category, racer.gender}
-		categorizedRaces[key] = append(categorizedRaces[key], race)
-	}
-
-	categorizedRaces[CategoryGenderKey{Intermediate, Male}].write("IM", w)
-	categorizedRaces[CategoryGenderKey{Intermediate, Female}].write("IF", w)
-	categorizedRaces[CategoryGenderKey{Advanced, Male}].write("AM", w)
-	categorizedRaces[CategoryGenderKey{Advanced, Female}].write("AF", w)
 
 	// 3. the "fun awards"
 
-	c := closetToPenguinSpeed(allRaces)
-	log.Println("race", c.formatRace())
+	// c := quirky.ClosetToPenguinSpeed(allRaces)
 
 	/*
 		- closest to running pace of a penguin (1.6 miles an hour).
