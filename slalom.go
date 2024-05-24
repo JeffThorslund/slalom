@@ -17,13 +17,6 @@ func main() {
 	ends := parseCsvData("testdata/ends.csv", newEnd)
 	racers := parseCsvData("testdata/racers.csv", newRacer)
 
-	// validate the data without mutation, throw errors for humans to fix
-	validationError := getValidationError(starts, ends, racers)
-
-	if validationError != nil {
-		log.Fatal(validationError)
-	}
-
 	file, err := os.Create("demo.csv")
 
 	if err != nil {

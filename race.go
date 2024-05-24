@@ -36,11 +36,13 @@ func (r *Race) getSpeedDiffSeconds(comparator float64) float64 {
 	return math.Abs(r.getRaceSpeed() - comparator)
 }
 
+const timeFormatString = "15:04:05"
+
 func (r *Race) formatRace() []string {
 	return []string{
 		string((*r).racerId),
-		(*r).start.String(),
-		(*r).end.String(),
+		(*r).start.Format(timeFormatString),
+		(*r).end.Format(timeFormatString),
 		(*r).getRaceTime().String(),
 	}
 }
